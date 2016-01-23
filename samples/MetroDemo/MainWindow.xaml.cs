@@ -17,9 +17,9 @@ namespace MetroDemo
 
         public MainWindow()
         {
-            _viewModel = new MainWindowViewModel(DialogCoordinator.Instance);
+            _viewModel = new MainWindowViewModel();
             DataContext = _viewModel;
-
+            
             InitializeComponent();
 
             flyoutDemo = new FlyoutDemo();
@@ -67,28 +67,6 @@ namespace MetroDemo
         {
             get { return (bool)GetValue(ToggleFullScreenProperty); }
             set { SetValue(ToggleFullScreenProperty, value); }
-        }
-
-        public static readonly DependencyProperty UseAccentForDialogsProperty =
-            DependencyProperty.Register("UseAccentForDialogs",
-                                        typeof(bool),
-                                        typeof(MainWindow),
-                                        new PropertyMetadata(default(bool), ToggleUseAccentForDialogsPropertyChangedCallback));
-
-        private static void ToggleUseAccentForDialogsPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
-        {
-            var metroWindow = (MetroWindow)dependencyObject;
-            if (e.OldValue != e.NewValue)
-            {
-                var useAccentForDialogs = (bool)e.NewValue;
-                metroWindow.MetroDialogOptions.ColorScheme = useAccentForDialogs ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
-            }
-        }
-
-        public bool UseAccentForDialogs
-        {
-            get { return (bool)GetValue(UseAccentForDialogsProperty); }
-            set { SetValue(UseAccentForDialogsProperty, value); }
         }
 
         private void LaunchMahAppsOnGitHub(object sender, RoutedEventArgs e)
@@ -147,7 +125,6 @@ namespace MetroDemo
         private async void ShowDialogOutside(object sender, RoutedEventArgs e)
         {
             var dialog = (BaseMetroDialog)this.Resources["CustomDialogTest"];
-            dialog.DialogSettings.ColorScheme = MetroDialogOptions.ColorScheme;
             dialog = dialog.ShowDialogExternally();
 
             await TaskEx.Delay(5000);
@@ -159,12 +136,14 @@ namespace MetroDemo
         {
             // This demo runs on .Net 4.0, but we're using the Microsoft.Bcl.Async package so we have async/await support
             // The package is only used by the demo and not a dependency of the library!
+            MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
+
             var mySettings = new MetroDialogSettings()
             {
                 AffirmativeButtonText = "Hi",
                 NegativeButtonText = "Go away!",
                 FirstAuxiliaryButtonText = "Cancel",
-                ColorScheme = MetroDialogOptions.ColorScheme
+                ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme
             };
 
             MessageDialogResult result = await this.ShowMessageAsync("Hello!", "Welcome to the world of metro!",
@@ -184,7 +163,7 @@ namespace MetroDemo
                 NegativeButtonText = "Go away!",
                 FirstAuxiliaryButtonText = "Cancel",
                 MaximumBodyHeight = 100,
-                ColorScheme = MetroDialogOptions.ColorScheme
+                ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme
             };
 
             MessageDialogResult result = await this.ShowMessageAsync("Hello!", "Welcome to the world of metro!" + string.Join(Environment.NewLine, "abc","def","ghi", "jkl","mno","pqr","stu","vwx","yz"),
@@ -197,56 +176,21 @@ namespace MetroDemo
 
         private async void ShowCustomDialog(object sender, RoutedEventArgs e)
         {
+            this.MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
+
             var dialog = (BaseMetroDialog)this.Resources["CustomDialogTest"];
 
             await this.ShowMetroDialogAsync(dialog);
 
-            var textBlock = dialog.FindChild<TextBlock>("MessageTextBlock");
-            textBlock.Text = "A message box will appear in 5 seconds.";
-
             await TaskEx.Delay(5000);
 
-            await this.ShowMessageAsync("Secondary dialog", "This message is shown on top of another.");
-
-            textBlock.Text = "The dialog will close in 2 seconds.";
-            await TaskEx.Delay(2000);
-
             await this.HideMetroDialogAsync(dialog);
-        }
-
-        private async void ShowAwaitCustomDialog(object sender, RoutedEventArgs e)
-        {
-            var dialog = (BaseMetroDialog)this.Resources["CustomCloseDialogTest"];
-
-            await this.ShowMetroDialogAsync(dialog);
-            await dialog.WaitUntilUnloadedAsync();
-
-            await this.ShowMessageAsync("Dialog gone", "The custom dialog has closed");
-        }
-
-        private async void CloseCustomDialog(object sender, RoutedEventArgs e)
-        {
-            var dialog = (BaseMetroDialog)this.Resources["CustomCloseDialogTest"];
-
-            await this.HideMetroDialogAsync(dialog);
-        }
-
-         private async void ShowLoginDialogPasswordPreview(object sender, RoutedEventArgs e)
-        {
-            LoginDialogData result = await this.ShowLoginAsync("Authentication", "Enter your credentials", new LoginDialogSettings { ColorScheme = this.MetroDialogOptions.ColorScheme, InitialUsername = "MahApps", EnablePasswordPreview = true });
-            if (result == null)
-            {
-                //User pressed cancel
-            }
-            else
-            {
-                MessageDialogResult messageResult = await this.ShowMessageAsync("Authentication Information", String.Format("Username: {0}\nPassword: {1}", result.Username, result.Password));
-            }
         }
         private async void ShowProgressDialog(object sender, RoutedEventArgs e)
         {
+            this.MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
+
             var controller = await this.ShowProgressAsync("Please wait...", "We are baking some cupcakes!");
-            controller.SetIndeterminate();
 
             await TaskEx.Delay(5000);
 
@@ -281,6 +225,8 @@ namespace MetroDemo
 
         private async void ShowInputDialog(object sender, RoutedEventArgs e)
         {
+            this.MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
+
             var result = await this.ShowInputAsync("Hello!", "What is your name?");
 
             if (result == null) //user pressed cancel
@@ -291,6 +237,7 @@ namespace MetroDemo
 
         private async void ShowLoginDialog(object sender, RoutedEventArgs e)
         {
+            this.MetroDialogOptions.ColorScheme = UseAccentForDialogsMenuItem.IsChecked ? MetroDialogColorScheme.Accented : MetroDialogColorScheme.Theme;
             LoginDialogData result = await this.ShowLoginAsync("Authentication", "Enter your credentials", new LoginDialogSettings { ColorScheme = this.MetroDialogOptions.ColorScheme, InitialUsername = "MahApps"});
             if (result == null)
             {
@@ -362,7 +309,7 @@ namespace MetroDemo
             w.Content = new TextBlock() { Text = "MetroWindow with a Border", FontSize = 28, FontWeight = FontWeights.Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
             w.BorderThickness = new Thickness(1);
             w.GlowBrush = null;
-            w.SetResourceReference(MetroWindow.BorderBrushProperty, "AccentColorBrush");
+            w.BorderBrush = this.FindResource("AccentColorBrush") as Brush;
             w.Show();
         }
 
@@ -372,7 +319,7 @@ namespace MetroDemo
             w.Content = new TextBlock() { Text = "MetroWindow with a Glow", FontSize = 28, FontWeight = FontWeights.Light, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
             w.BorderThickness = new Thickness(1);
             w.BorderBrush = null;
-            w.SetResourceReference(MetroWindow.GlowBrushProperty, "AccentColorBrush");
+            w.GlowBrush = this.FindResource("AccentColorBrush") as SolidColorBrush;
             w.Show();
         }
 

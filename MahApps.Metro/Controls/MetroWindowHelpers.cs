@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using Microsoft.Windows.Shell;
 
@@ -16,8 +17,8 @@ namespace MahApps.Metro.Controls
         /// <summary>
         /// Sets the IsHitTestVisibleInChromeProperty to a MetroWindow template child
         /// </summary>
-        /// <param name="window">The MetroWindow.</param>
-        /// <param name="name">The name of the template child.</param>
+        /// <param name="window">The MetroWindow</param>
+        /// <param name="name">The name of the template child</param>
         public static void SetIsHitTestVisibleInChromeProperty<T>(this MetroWindow window, string name) where T : DependencyObject
         {
             if (window == null)
@@ -28,25 +29,6 @@ namespace MahApps.Metro.Controls
             if (elementPart != null)
             {
                 elementPart.SetValue(WindowChrome.IsHitTestVisibleInChromeProperty, true);
-            }
-        }
-
-        /// <summary>
-        /// Sets the WindowChrome ResizeGripDirection to a MetroWindow template child.
-        /// </summary>
-        /// <param name="window">The MetroWindow.</param>
-        /// <param name="name">The name of the template child.</param>
-        /// <param name="direction">The direction.</param>
-        public static void SetWindowChromeResizeGripDirection(this MetroWindow window, string name, ResizeGripDirection direction)
-        {
-            if (window == null)
-            {
-                return;
-            }
-            var inputElement = window.GetPart(name) as IInputElement;
-            if (inputElement != null)
-            {
-                WindowChrome.SetResizeGripDirection(inputElement, direction);
             }
         }
 
@@ -103,85 +85,94 @@ namespace MahApps.Metro.Controls
 
         public static void ResetAllWindowCommandsBrush(this MetroWindow window)
         {
-            window.ChangeAllWindowCommandsBrush(window.OverrideDefaultWindowCommandsBrush);
+            if (window.OverrideDefaultWindowCommandsBrush == null)
+            {
+                window.InvokeCommandButtons(x => x.ClearValue(Control.ForegroundProperty));
+                window.WindowButtonCommands.ClearValue(Control.ForegroundProperty);
+            }
+            else
+            {
+                window.ChangeAllWindowCommandsBrush(window.OverrideDefaultWindowCommandsBrush);
+            }
         }
 
         public static void UpdateWindowCommandsForFlyout(this MetroWindow window, Flyout flyout)
         {
-            window.ChangeAllWindowCommandsBrush(flyout.Foreground, flyout.Position);
+            Brush brush = flyout.Foreground;
+
+            window.ChangeAllWindowCommandsBrush(brush, flyout.Position);
         }
-        
-        private static void InvokeActionOnWindowCommands(this MetroWindow window, Action<Control> action1, Action<Control> action2 = null, Position position = Position.Top)
+
+        public static void ChangeWindowCommandButtonsBrush(this MetroWindow window, string brush)
         {
-            if (window.LeftWindowCommandsPresenter == null || window.RightWindowCommandsPresenter == null || window.WindowButtonCommands == null)
+            window.InvokeCommandButtons(x => x.SetResourceReference(Control.ForegroundProperty, brush));
+        }
+
+        private static void ChangeWindowCommandButtonsBrush(this MetroWindow window, Brush brush)
+        {
+            window.InvokeCommandButtons(x => x.SetValue(Control.ForegroundProperty, brush));
+        }
+
+        public static void ChangeWindowCommandButtonsBrush(this MetroWindow window, string brush, Position position)
+        {
+            window.InvokeCommandButtons(x => x.SetResourceReference(Control.ForegroundProperty, brush), position);
+        }
+
+        private static void ChangeWindowCommandButtonsBrush(this MetroWindow window, Brush brush, Position position)
+        {
+            window.InvokeCommandButtons(x => x.SetValue(Control.ForegroundProperty, brush), position);
+        }
+
+        private static void InvokeCommandButtons(this MetroWindow window, Action<ButtonBase> action)
+        {
+            if (window.RightWindowCommandsPresenter == null || window.LeftWindowCommandsPresenter == null)
             {
                 return;
             }
 
-            if (position == Position.Left || position == Position.Top)
+            var allCommandButtons = ((WindowCommands)window.RightWindowCommandsPresenter.Content)
+                .FindChildren<ButtonBase>()
+                .Concat(((WindowCommands)window.LeftWindowCommandsPresenter.Content).FindChildren<ButtonBase>());
+            foreach (var b in allCommandButtons)
             {
-                action1(window.LeftWindowCommands);
-            }
-
-            if (position == Position.Right || position == Position.Top)
-            {
-                action1(window.RightWindowCommands);
-                if (action2 == null)
-                {
-                    action1(window.WindowButtonCommands);
-                }
-                else
-                {
-                    action2(window.WindowButtonCommands);
-                }
+                action(b);
             }
         }
 
-        private static void ChangeAllWindowCommandsBrush(this MetroWindow window, Brush brush, Position position = Position.Top)
+        private static void InvokeCommandButtons(this MetroWindow window, Action<ButtonBase> action, Position position)
         {
-            if (brush == null)
+            if (window.RightWindowCommandsPresenter == null || window.LeftWindowCommandsPresenter == null)
             {
-                // set the theme to light by default
-                window.InvokeActionOnWindowCommands(x => x.SetValue(WindowCommands.ThemeProperty, Theme.Light),
-                                                    x => x.SetValue(WindowButtonCommands.ThemeProperty, Theme.Light), position);
-
-                // clear the foreground property
-                window.InvokeActionOnWindowCommands(x => x.ClearValue(Control.ForegroundProperty), null, position);
+                return;
             }
-            else
+
+            var allCommandButtons = Enumerable.Empty<ButtonBase>();
+            if (position == Position.Right || position == Position.Top)
             {
-                // calculate brush color lightness
-                var color = ((SolidColorBrush)brush).Color;
+                allCommandButtons = allCommandButtons.Concat(((WindowCommands)window.RightWindowCommandsPresenter.Content).FindChildren<ButtonBase>());
+            }
+            if (position == Position.Left || position == Position.Top)
+            {
+                allCommandButtons = allCommandButtons.Concat(((WindowCommands)window.LeftWindowCommandsPresenter.Content).FindChildren<ButtonBase>());
+            }
+            foreach (var b in allCommandButtons)
+            {
+                action(b);
+            }
+        }
 
-                var r = color.R / 255.0f;
-                var g = color.G / 255.0f;
-                var b = color.B / 255.0f;
+        private static void ChangeAllWindowCommandsBrush(this MetroWindow window, Brush brush)
+        {
+            window.ChangeWindowCommandButtonsBrush(brush);
+            window.WindowButtonCommands.SetValue(Control.ForegroundProperty, brush);
+        }
 
-                var max = r;
-                var min = r;
-
-                if (g > max) max = g;
-                if (b > max) max = b;
-
-                if (g < min) min = g;
-                if (b < min) min = b;
-
-                var lightness = (max + min) / 2;
-
-                // set the theme based on color lightness
-                if (lightness > 0.1)
-                {
-                    window.InvokeActionOnWindowCommands(x => x.SetValue(WindowCommands.ThemeProperty, Theme.Light),
-                                                        x => x.SetValue(WindowButtonCommands.ThemeProperty, Theme.Light), position);
-                }
-                else
-                {
-                    window.InvokeActionOnWindowCommands(x => x.SetValue(WindowCommands.ThemeProperty, Theme.Dark),
-                                                        x => x.SetValue(WindowButtonCommands.ThemeProperty, Theme.Dark), position);
-                }
-
-                // set the foreground property
-                window.InvokeActionOnWindowCommands(x => x.SetValue(Control.ForegroundProperty, brush), null, position);
+        private static void ChangeAllWindowCommandsBrush(this MetroWindow window, Brush brush, Position position)
+        {
+            window.ChangeWindowCommandButtonsBrush(brush, position);
+            if (position == Position.Right || position == Position.Top)
+            {
+                window.WindowButtonCommands.SetValue(Control.ForegroundProperty, brush);
             }
         }
     }

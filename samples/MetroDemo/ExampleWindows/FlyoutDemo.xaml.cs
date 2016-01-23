@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Input;
 using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
 using MetroDemo.Models;
 
 namespace MetroDemo.ExampleWindows
@@ -14,7 +13,7 @@ namespace MetroDemo.ExampleWindows
         
         public FlyoutDemo()
         {
-            this.DataContext = new MainWindowViewModel(DialogCoordinator.Instance);
+            this.DataContext = new MainWindowViewModel();
             this.InitializeComponent();
             this.Closing += (s, e) =>
                 {

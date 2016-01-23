@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -57,17 +56,7 @@ namespace MahApps.Metro.Controls.Dialogs
             RoutedEventHandler secondAuxHandler = null;
             KeyEventHandler secondAuxKeyHandler = null;
 
-            KeyEventHandler escapeKeyHandler = null;
-
-            Action cleanUpHandlers = null;
-
-            var cancellationTokenRegistration = DialogSettings.CancellationToken.Register(() =>
-            {
-                cleanUpHandlers();
-                tcs.TrySetResult(ButtonStyle == MessageDialogStyle.Affirmative ? MessageDialogResult.Affirmative : MessageDialogResult.Negative);
-            });
-
-            cleanUpHandlers = () => {
+            Action cleanUpHandlers = () => {
                 PART_NegativeButton.Click -= negativeHandler;
                 PART_AffirmativeButton.Click -= affirmativeHandler;
                 PART_FirstAuxiliaryButton.Click -= firstAuxHandler;
@@ -77,10 +66,6 @@ namespace MahApps.Metro.Controls.Dialogs
                 PART_AffirmativeButton.KeyDown -= affirmativeKeyHandler;
                 PART_FirstAuxiliaryButton.KeyDown -= firstAuxKeyHandler;
                 PART_SecondAuxiliaryButton.KeyDown -= secondAuxKeyHandler;
-
-                KeyDown -= escapeKeyHandler;
-
-                cancellationTokenRegistration.Dispose();
             };
 
             negativeKeyHandler = (sender, e) => {
@@ -151,21 +136,6 @@ namespace MahApps.Metro.Controls.Dialogs
                 e.Handled = true;
             };
 
-            escapeKeyHandler = (sender, e) => {
-                if (e.Key == Key.Escape)
-                {
-                    cleanUpHandlers();
-
-                    tcs.TrySetResult(ButtonStyle == MessageDialogStyle.Affirmative ? MessageDialogResult.Affirmative : MessageDialogResult.Negative);
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    cleanUpHandlers();
-
-                    tcs.TrySetResult(MessageDialogResult.Affirmative);
-                }
-            };
-
             PART_NegativeButton.KeyDown += negativeKeyHandler;
             PART_AffirmativeButton.KeyDown += affirmativeKeyHandler;
             PART_FirstAuxiliaryButton.KeyDown += firstAuxKeyHandler;
@@ -175,8 +145,6 @@ namespace MahApps.Metro.Controls.Dialogs
             PART_AffirmativeButton.Click += affirmativeHandler;
             PART_FirstAuxiliaryButton.Click += firstAuxHandler;
             PART_SecondAuxiliaryButton.Click += secondAuxHandler;
-
-            KeyDown += escapeKeyHandler;
 
             return tcs.Task;
         }
@@ -242,7 +210,7 @@ namespace MahApps.Metro.Controls.Dialogs
             }
         }
 
-        protected override void OnLoaded()
+        private void Dialog_Loaded(object sender, RoutedEventArgs e)
         {
             SetButtonState(this);
         }

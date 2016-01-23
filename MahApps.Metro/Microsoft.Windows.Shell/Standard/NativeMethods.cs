@@ -838,17 +838,6 @@
         COMMAND = 0x0111,
         SYSCOMMAND = 0x0112,
 
-        // These two messages aren't defined in winuser.h, but they are sent to windows
-        // with captions. They appear to paint the window caption and frame.
-        // Unfortunately if you override the standard non-client rendering as we do
-        // with CustomFrameWindow, sometimes Windows (not deterministically
-        // reproducibly but definitely frequently) will send these messages to the
-        // window and paint the standard caption/title over the top of the custom one.
-        // So we need to handle these messages in CustomFrameWindow to prevent this
-        // from happening.
-        NCUAHDRAWCAPTION = 0xAE,
-        NCUAHDRAWFRAME = 0xAF,
-
         MOUSEMOVE = 0x0200,
         LBUTTONDOWN = 0x0201,
         LBUTTONUP = 0x0202,
@@ -3296,11 +3285,6 @@
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         [DllImport("gdiplus.dll")]
         public static extern Status GdiplusShutdown(IntPtr token);
-
-        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsZoomed(IntPtr hwnd);
 
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         [DllImport("user32.dll")]

@@ -33,17 +33,9 @@ namespace MahApps.Metro
 
                 _accents = new List<Accent>(colors.Length);
 
-                try
+                foreach (var color in colors)
                 {
-                    foreach (var color in colors)
-                    {
-                        var resourceAddress = new Uri(string.Format("pack://application:,,,/MahApps.Metro;component/Styles/Accents/{0}.xaml", color));
-                        _accents.Add(new Accent(color, resourceAddress));
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw new MahAppsException("This exception happens because you are maybe running that code out of the scope of a WPF application. Most likely because you are testing your configuration inside a unit test.", e);
+                    _accents.Add(new Accent(color, new Uri(string.Format("pack://application:,,,/MahApps.Metro;component/Styles/Accents/{0}.xaml", color))));
                 }
 
                 return _accents;
@@ -64,17 +56,11 @@ namespace MahApps.Metro
 
                 _appThemes = new List<AppTheme>(themes.Length);
 
-                try
+                foreach (var color in themes)
                 {
-                    foreach (var color in themes)
-                    {
-                        var resourceAddress = new Uri(string.Format("pack://application:,,,/MahApps.Metro;component/Styles/Accents/{0}.xaml", color));
-                        _appThemes.Add(new AppTheme(color, resourceAddress));
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw new MahAppsException("This exception happens because you are maybe running that code out of the scope of a WPF application. Most likely because you are testing your configuration inside a unit test.", e);
+                    var appTheme = new AppTheme(color, new Uri(string.Format("pack://application:,,,/MahApps.Metro;component/Styles/Accents/{0}.xaml", color)));
+
+                    _appThemes.Add(appTheme);
                 }
 
                 return _appThemes;
@@ -366,8 +352,7 @@ namespace MahApps.Metro
                 var oldAccent = oldThemeInfo.Item2;
                 if (oldAccent != null && oldAccent.Name != newAccent.Name)
                 {
-                    var key = oldAccent.Resources.Source.ToString().ToLower();
-                    var oldAccentResource = resources.MergedDictionaries.Where(x => x.Source != null).FirstOrDefault(d => d.Source.ToString().ToLower() == key);
+                    var oldAccentResource = resources.MergedDictionaries.FirstOrDefault(d => d.Source == oldAccent.Resources.Source);
                     if (oldAccentResource != null)
                     {
                         resources.MergedDictionaries.Add(newAccent.Resources);
@@ -380,8 +365,7 @@ namespace MahApps.Metro
                 var oldTheme = oldThemeInfo.Item1;
                 if (oldTheme != null && oldTheme != newTheme)
                 {
-                    var key = oldTheme.Resources.Source.ToString().ToLower();
-                    var oldThemeResource = resources.MergedDictionaries.Where(x => x.Source != null).FirstOrDefault(d => d.Source.ToString().ToLower() == key);
+                    var oldThemeResource = resources.MergedDictionaries.FirstOrDefault(d => d.Source == oldTheme.Resources.Source);
                     if (oldThemeResource != null)
                     {
                         resources.MergedDictionaries.Add(newTheme.Resources);
@@ -414,8 +398,6 @@ namespace MahApps.Metro
         public static void ChangeAppStyle(ResourceDictionary resources, Accent newAccent, AppTheme newTheme)
         {
             if (resources == null) throw new ArgumentNullException("resources");
-            if (newAccent == null) throw new ArgumentNullException("newAccent");
-            if (newTheme == null) throw new ArgumentNullException("newTheme");
 
             ApplyResourceDictionary(newAccent.Resources, resources);
             ApplyResourceDictionary(newTheme.Resources, resources);
@@ -435,28 +417,6 @@ namespace MahApps.Metro
             }
 
             oldRd.EndInit();
-        }
-
-        /// <summary>
-        /// Copies all resource keys from one resource to another.
-        /// </summary>
-        /// <param name="fromRD">The source resource dictionary.</param>
-        /// <param name="toRD">The destination resource dictionary.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// fromRD
-        /// or
-        /// toRD
-        /// </exception>
-        internal static void CopyResource(ResourceDictionary fromRD, ResourceDictionary toRD)
-        {
-            if (fromRD == null) throw new ArgumentNullException("fromRD");
-            if (toRD == null) throw new ArgumentNullException("toRD");
-
-            ApplyResourceDictionary(fromRD, toRD);
-            foreach (var rd in fromRD.MergedDictionaries)
-            {
-                CopyResource(rd, toRD);
-            }
         }
 
         /// <summary>

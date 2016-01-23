@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
@@ -7,25 +6,11 @@ namespace MahApps.Metro.Controls
 {
     public static class ButtonHelper
     {
-        [Obsolete(@"This property will be deleted in the next release. You should use ContentCharacterCasing attached property located at ControlsHelper.")]
         public static readonly DependencyProperty PreserveTextCaseProperty =
             DependencyProperty.RegisterAttached("PreserveTextCase", typeof(bool), typeof(ButtonHelper),
                                                 new FrameworkPropertyMetadata(
                                                     false,
-                                                    FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure,
-                                                    PreserveTextCasePropertyChangedCallback));
-
-        private static void PreserveTextCasePropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
-        {
-            if (e.NewValue is bool)
-            {
-                var button = dependencyObject as Button;
-                if (button != null)
-                {
-                    ControlsHelper.SetContentCharacterCasing(button, (bool)e.NewValue ? CharacterCasing.Normal : CharacterCasing.Upper);
-                }
-            }
-        }
+                                                    FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure));
 
         /// <summary>
         /// Overrides the text case behavior for certain buttons.

@@ -34,26 +34,6 @@ namespace MahApps.Metro.Tests
         }
 
         [Fact]
-        public async Task DefaultButtonRespectsControlsHelperContentCharacterCasing()
-        {
-            await TestHost.SwitchToAppThread();
-
-            var window = await WindowHelpers.CreateInvisibleWindowAsync<ButtonWindow>();
-
-            Button defaultButton = window.DefaultButton;
-            var presenter = defaultButton.FindChild<ContentPresenter>("contentPresenter");
-
-            ControlsHelper.SetContentCharacterCasing(defaultButton, CharacterCasing.Normal);
-            Assert.Equal("SomeText", presenter.Content); 
-
-            ControlsHelper.SetContentCharacterCasing(defaultButton, CharacterCasing.Lower);
-            Assert.Equal("sometext", presenter.Content); 
-
-            ControlsHelper.SetContentCharacterCasing(defaultButton, CharacterCasing.Upper);
-            Assert.Equal("SOMETEXT", presenter.Content); 
-        }
-
-        [Fact]
         public async Task SquareButtonButtonTextIsLowerCase()
         {
             await TestHost.SwitchToAppThread();
@@ -65,14 +45,14 @@ namespace MahApps.Metro.Tests
         }
 
         [Fact]
-        public async Task SquareButtonBespectsButtonHelperContentCharacterCasing()
+        public async Task SquareButtonBespectsButtonHelperPreserveTextCase()
         {
             await TestHost.SwitchToAppThread();
 
             var window = await WindowHelpers.CreateInvisibleWindowAsync<ButtonWindow>();
 
             Button defaultButton = window.SquareButton;
-            ControlsHelper.SetContentCharacterCasing(defaultButton, CharacterCasing.Normal);
+            ButtonHelper.SetPreserveTextCase(defaultButton, true);
             var presenter = defaultButton.FindChild<ContentPresenter>("contentPresenter");
 
             Assert.Equal("SomeText", presenter.Content);

@@ -35,15 +35,7 @@ namespace MahApps.Metro.Controls.Dialogs
 
             KeyEventHandler escapeKeyHandler = null;
 
-            Action cleanUpHandlers = null;
-
-            var cancellationTokenRegistration = DialogSettings.CancellationToken.Register(() =>
-            {
-                cleanUpHandlers();
-                tcs.TrySetResult(null);
-            });
-
-            cleanUpHandlers = () =>
+            Action cleanUpHandlers = () =>
             {
                 PART_TextBox.KeyDown -= affirmativeKeyHandler;
 
@@ -54,8 +46,6 @@ namespace MahApps.Metro.Controls.Dialogs
 
                 PART_NegativeButton.KeyDown -= negativeKeyHandler;
                 PART_AffirmativeButton.KeyDown -= affirmativeKeyHandler;
-
-                cancellationTokenRegistration.Dispose();
             };
 
             escapeKeyHandler = (sender, e) =>
@@ -119,7 +109,7 @@ namespace MahApps.Metro.Controls.Dialogs
             return tcs.Task;
         }
 
-        protected override void OnLoaded()
+        private void Dialog_Loaded(object sender, RoutedEventArgs e)
         {
             this.AffirmativeButtonText = this.DialogSettings.AffirmativeButtonText;
             this.NegativeButtonText = this.DialogSettings.NegativeButtonText;
@@ -129,7 +119,6 @@ namespace MahApps.Metro.Controls.Dialogs
                 case MetroDialogColorScheme.Accented:
                     this.PART_NegativeButton.Style = this.FindResource("AccentedDialogHighlightedSquareButton") as Style;
                     PART_TextBox.SetResourceReference(ForegroundProperty, "BlackColorBrush");
-                    PART_TextBox.SetResourceReference(ControlsHelper.FocusBorderBrushProperty, "TextBoxFocusBorderBrush");
                     break;
             }
         }

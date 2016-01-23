@@ -42,16 +42,7 @@ namespace MahApps.Metro.Controls
 
         public static readonly DependencyProperty IsReadOnlyProperty = TextBoxBase.IsReadOnlyProperty.AddOwner(
             typeof(NumericUpDown),
-            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits, IsReadOnlyPropertyChangedCallback));
-
-        private static void IsReadOnlyPropertyChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
-        {
-            if (e.OldValue != e.NewValue && e.NewValue != null)
-            {
-                var numUpDown = (NumericUpDown)dependencyObject;
-                numUpDown.ToggleReadOnlyMode((bool)e.NewValue | !numUpDown.InterceptManualEnter);
-            }
-        }
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
 
         public static readonly DependencyProperty StringFormatProperty = DependencyProperty.Register(
             "StringFormat",
@@ -70,12 +61,6 @@ namespace MahApps.Metro.Controls
             typeof(double?),
             typeof(NumericUpDown),
             new FrameworkPropertyMetadata(default(double?), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged, CoerceValue));
-
-        public static readonly DependencyProperty ButtonsAlignmentProperty = DependencyProperty.Register(
-           "ButtonsAlignment",
-           typeof(ButtonsAlignment),
-           typeof(NumericUpDown),
-           new FrameworkPropertyMetadata(ButtonsAlignment.Right, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure));
 
         public static readonly DependencyProperty MinimumProperty = DependencyProperty.Register(
             "Minimum",
@@ -108,49 +93,10 @@ namespace MahApps.Metro.Controls
             new FrameworkPropertyMetadata(default(bool)));
 
         public static readonly DependencyProperty HideUpDownButtonsProperty = DependencyProperty.Register(
-            "HideUpDownButtons",
-            typeof(bool),
-            typeof(NumericUpDown),
-            new PropertyMetadata(default(bool)));
-
-        public static readonly DependencyProperty UpDownButtonsWidthProperty = DependencyProperty.Register(
-            "UpDownButtonsWidth",
-            typeof(double),
-            typeof(NumericUpDown),
-            new PropertyMetadata(20d));
+                                                        "HideUpDownButtons", typeof(bool), typeof(NumericUpDown), new PropertyMetadata(default(bool)));
 
         public static readonly DependencyProperty InterceptManualEnterProperty = DependencyProperty.Register(
-            "InterceptManualEnter",
-            typeof(bool),
-            typeof(NumericUpDown),
-            new PropertyMetadata(true, InterceptManualEnterChangedCallback));
-
-        private static void InterceptManualEnterChangedCallback(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
-        {
-            if (e.OldValue != e.NewValue && e.NewValue != null)
-            {
-                var numUpDown = (NumericUpDown)dependencyObject;
-                numUpDown.ToggleReadOnlyMode(!(bool)e.NewValue | numUpDown.IsReadOnly);
-            }
-        }
-
-        public static readonly DependencyProperty CultureProperty = DependencyProperty.Register(
-            "Culture",
-            typeof(CultureInfo),
-            typeof(NumericUpDown),
-            new PropertyMetadata(null, (o, e) => {
-                                            if (e.NewValue != e.OldValue)
-                                            {
-                                                var numUpDown = (NumericUpDown) o;
-                                                numUpDown.OnValueChanged(numUpDown.Value, numUpDown.Value);
-                                            }
-                                        }));
-
-        public static readonly DependencyProperty SelectAllOnFocusProperty = DependencyProperty.Register(
-            "SelectAllOnFocus",
-            typeof(bool),
-            typeof(NumericUpDown),
-            new PropertyMetadata(true));
+                                                        "InterceptManualEnter", typeof(bool), typeof(NumericUpDown), new PropertyMetadata(true));
 
         private const double DefaultInterval = 1d;
         private const int DefaultDelay = 500;
@@ -177,8 +123,6 @@ namespace MahApps.Metro.Controls
 
             VerticalContentAlignmentProperty.OverrideMetadata(typeof(NumericUpDown), new FrameworkPropertyMetadata(VerticalAlignment.Center));
             HorizontalContentAlignmentProperty.OverrideMetadata(typeof(NumericUpDown), new FrameworkPropertyMetadata(HorizontalAlignment.Right));
-
-            EventManager.RegisterClassHandler(typeof(NumericUpDown), UIElement.GotFocusEvent, new RoutedEventHandler(OnGotFocus));
         }
 
         public event RoutedPropertyChangedEventHandler<double?> ValueChanged
@@ -287,17 +231,6 @@ namespace MahApps.Metro.Controls
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating the culture to be used in string formatting operations.
-        /// </summary>
-        [Category("Behavior")]
-        [DefaultValue(null)]
-        public CultureInfo Culture
-        {
-            get { return (CultureInfo)GetValue(CultureProperty); }
-            set { SetValue(CultureProperty, value); }
-        }
-
-        /// <summary>
         ///     Gets or sets a value indicating whether the +/- button of the control is visible.
         /// </summary>
         /// <remarks>
@@ -324,39 +257,12 @@ namespace MahApps.Metro.Controls
         }
 
         [Bindable(true)]
-        [Category("Appearance")]
-        [DefaultValue(20d)]
-        public double UpDownButtonsWidth
-        {
-            get { return (double)GetValue(UpDownButtonsWidthProperty); }
-            set { SetValue(UpDownButtonsWidthProperty, value); }
-        }
-
-        [Bindable(true)]
-        [Category("Appearance")]
-        [DefaultValue(ButtonsAlignment.Right)]
-        public Controls.ButtonsAlignment ButtonsAlignment
-        {
-            get { return (ButtonsAlignment)GetValue(ButtonsAlignmentProperty); }
-            set { SetValue(ButtonsAlignmentProperty, value); }
-        }
-
-        [Bindable(true)]
         [Category("Behavior")]
         [DefaultValue(DefaultInterval)]
         public double Interval
         {
             get { return (double)GetValue(IntervalProperty); }
             set { SetValue(IntervalProperty, value); }
-        }
-
-        [Bindable(true)]
-        [Category("Behavior")]
-        [DefaultValue(true)]
-        public bool SelectAllOnFocus
-        {
-            get { return (bool)GetValue(SelectAllOnFocusProperty); }
-            set { SetValue(SelectAllOnFocusProperty, value); }
         }
 
         /// <summary>
@@ -439,34 +345,7 @@ namespace MahApps.Metro.Controls
 
         private CultureInfo SpecificCultureInfo
         {
-            get { return Culture ?? Language.GetSpecificCulture(); }
-        }
-
-        /// <summary> 
-        ///     Called when this element or any below gets focus.
-        /// </summary>
-        private static void OnGotFocus(object sender, RoutedEventArgs e)
-        {
-            // When NumericUpDown gets logical focus, select the text inside us.
-            NumericUpDown numericUpDown = (NumericUpDown)sender;
-
-            // If we're an editable NumericUpDown, forward focus to the TextBox element
-            if (!e.Handled)
-            {
-                if ((numericUpDown.InterceptManualEnter || numericUpDown.IsReadOnly) && numericUpDown._valueTextBox != null)
-                {
-                    if (e.OriginalSource == numericUpDown)
-                    {
-                        numericUpDown._valueTextBox.Focus();
-                        e.Handled = true;
-                    }
-                    else if (e.OriginalSource == numericUpDown._valueTextBox && numericUpDown.SelectAllOnFocus)
-                    {
-                        numericUpDown._valueTextBox.SelectAll();
-                    }
-                }
-            }
-            
+            get { return Language.GetSpecificCulture(); }
         }
 
         /// <summary>
@@ -479,7 +358,7 @@ namespace MahApps.Metro.Controls
 
             _repeatUp = GetTemplateChild(ElementNumericUp) as RepeatButton;
             _repeatDown = GetTemplateChild(ElementNumericDown) as RepeatButton;
-            
+
             _valueTextBox = GetTemplateChild(ElementTextBox) as TextBox;
 
             if (_repeatUp == null ||
@@ -489,41 +368,28 @@ namespace MahApps.Metro.Controls
                 throw new InvalidOperationException(string.Format("You have missed to specify {0}, {1} or {2} in your template", ElementNumericUp, ElementNumericDown, ElementTextBox));
             }
 
-            this.ToggleReadOnlyMode(this.IsReadOnly | !this.InterceptManualEnter);
+            _valueTextBox.LostFocus += OnTextBoxLostFocus;
+            _valueTextBox.GotFocus += OnTextBoxGotFocus;
+            _valueTextBox.PreviewTextInput += OnPreviewTextInput;
+            _valueTextBox.IsReadOnly = IsReadOnly;
+            _valueTextBox.PreviewKeyDown += OnTextBoxKeyDown;
+            _valueTextBox.TextChanged += OnTextChanged;
+            DataObject.AddPastingHandler(_valueTextBox, OnValueTextBoxPaste);
 
             _repeatUp.Click += (o, e) => ChangeValueWithSpeedUp(true);
             _repeatDown.Click += (o, e) => ChangeValueWithSpeedUp(false);
 
             _repeatUp.PreviewMouseUp += (o, e) => ResetInternal();
             _repeatDown.PreviewMouseUp += (o, e) => ResetInternal();
-            
             OnValueChanged(Value, Value);
-
             _scrollViewer = TryFindScrollViewer();
         }
 
-        private void ToggleReadOnlyMode(bool isReadOnly)
+        private void OnTextBoxGotFocus(object sender, RoutedEventArgs e)
         {
-            if (_repeatUp == null || _repeatDown == null || _valueTextBox == null)
+            if (!InterceptManualEnter)
             {
-                return;
-            }
-            
-            if (isReadOnly)
-            {
-                _valueTextBox.LostFocus -= OnTextBoxLostFocus;
-                _valueTextBox.PreviewTextInput -= OnPreviewTextInput;
-                _valueTextBox.PreviewKeyDown -= OnTextBoxKeyDown;
-                _valueTextBox.TextChanged -= OnTextChanged;
-                DataObject.RemovePastingHandler(_valueTextBox, OnValueTextBoxPaste);
-            }
-            else
-            {
-                _valueTextBox.LostFocus += OnTextBoxLostFocus;
-                _valueTextBox.PreviewTextInput += OnPreviewTextInput;
-                _valueTextBox.PreviewKeyDown += OnTextBoxKeyDown;
-                _valueTextBox.TextChanged += OnTextChanged;
-                DataObject.AddPastingHandler(_valueTextBox, OnValueTextBoxPaste);
+                Focus();
             }
         }
 
@@ -719,19 +585,17 @@ namespace MahApps.Metro.Controls
                     {
                         _valueTextBox.Text = null;
                     }
-                    if (oldValue != newValue)
-                    {
-                        this.RaiseEvent(new RoutedPropertyChangedEventArgs<double?>(oldValue, newValue, ValueChangedEvent));
-                    }
                     return;
                 }
 
-                if (_repeatUp != null && !_repeatUp.IsEnabled)
+                if (_repeatUp != null &&
+                    !_repeatUp.IsEnabled)
                 {
                     _repeatUp.IsEnabled = true;
                 }
 
-                if (_repeatDown != null && !_repeatDown.IsEnabled)
+                if (_repeatDown != null &&
+                    !_repeatDown.IsEnabled)
                 {
                     _repeatDown.IsEnabled = true;
                 }
@@ -773,7 +637,8 @@ namespace MahApps.Metro.Controls
 
             if (oldValue != newValue)
             {
-                this.RaiseEvent(new RoutedPropertyChangedEventArgs<double?>(oldValue, newValue, ValueChangedEvent));
+                var eventArgs = new RoutedPropertyChangedEventArgs<double?>(oldValue, newValue, ValueChangedEvent);
+                RaiseEvent(eventArgs);
             }
         }
 
@@ -859,7 +724,7 @@ namespace MahApps.Metro.Controls
             if (nud._valueTextBox != null &&
                 nud.Value.HasValue)
             {
-                nud.InternalSetText(nud.Value);
+                nud._valueTextBox.Text = nud.Value.Value.ToString((string)e.NewValue);
             }
         }
 
@@ -870,7 +735,7 @@ namespace MahApps.Metro.Controls
             numericUpDown.OnValueChanged((double?)e.OldValue, (double?)e.NewValue);
         }
 
-      private static bool ValidateDelay(object value)
+        private static bool ValidateDelay(object value)
         {
             return Convert.ToInt32(value) >= 0;
         }
@@ -907,21 +772,18 @@ namespace MahApps.Metro.Controls
         private ScrollViewer TryFindScrollViewer()
         {
             _valueTextBox.ApplyTemplate();
-            var scrollViewer = _valueTextBox.Template.FindName("PART_ContentHost", _valueTextBox) as ScrollViewer;
-            if (scrollViewer != null)
+            var style = _valueTextBox.Template.FindName("PART_ContentHost", _valueTextBox) as ScrollViewer;
+
+            if (style != null)
             {
                 _handlesMouseWheelScrolling = new Lazy<PropertyInfo>(() => _scrollViewer.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance).SingleOrDefault(i => i.Name == "HandlesMouseWheelScrolling"));
             }
-            return scrollViewer;
+
+            return style;
         }
 
         private void ChangeValueWithSpeedUp(bool toPositive)
         {
-            if (IsReadOnly)
-            {
-                return;
-            }
-            
             double direction = toPositive ? 1 : -1;
             if (Speedup)
             {
@@ -947,11 +809,6 @@ namespace MahApps.Metro.Controls
 
         private void ChangeValueInternal(double interval)
         {
-            if (IsReadOnly)
-            {
-                return;
-            }
-            
             NumericUpDownChangedRoutedEventArgs routedEvent = interval > 0 ?
                 new NumericUpDownChangedRoutedEventArgs(ValueIncrementedEvent, interval) :
                 new NumericUpDownChangedRoutedEventArgs(ValueDecrementedEvent, interval);
@@ -1093,11 +950,6 @@ namespace MahApps.Metro.Controls
 
         private void ResetInternal()
         {
-            if (IsReadOnly)
-            {
-                return;
-            }
-            
             _internalLargeChange = 100 * Interval;
             _internalIntervalMultiplierForCalculation = Interval;
             _intervalValueSinceReset = 0;

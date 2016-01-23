@@ -22,7 +22,6 @@ namespace MahApps.Metro.Controls
         public static readonly DependencyProperty UseFloatingWatermarkProperty = DependencyProperty.RegisterAttached("UseFloatingWatermark", typeof(bool), typeof(TextBoxHelper), new FrameworkPropertyMetadata(false, ButtonCommandOrClearTextChanged));
         public static readonly DependencyProperty TextLengthProperty = DependencyProperty.RegisterAttached("TextLength", typeof(int), typeof(TextBoxHelper), new UIPropertyMetadata(0));
         public static readonly DependencyProperty ClearTextButtonProperty = DependencyProperty.RegisterAttached("ClearTextButton", typeof(bool), typeof(TextBoxHelper), new FrameworkPropertyMetadata(false, ButtonCommandOrClearTextChanged));
-        public static readonly DependencyProperty ButtonsAlignmentProperty = DependencyProperty.RegisterAttached("ButtonsAlignment", typeof(ButtonsAlignment), typeof(TextBoxHelper), new FrameworkPropertyMetadata(ButtonsAlignment.Right, FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsMeasure));
         /// <summary>
         /// The clear text button behavior property. It sets a click event to the button if the value is true.
         /// </summary>
@@ -249,7 +248,15 @@ namespace MahApps.Metro.Controls
             else if (d is NumericUpDown)
             {
                 var numericUpDown = d as NumericUpDown;
-                numericUpDown.SelectAllOnFocus = (bool)e.NewValue;
+
+                if ((bool)e.NewValue)
+                {
+                    numericUpDown.GotFocus += NumericUpDownGotFocus;
+                }
+                else
+                {
+                    numericUpDown.GotFocus -= NumericUpDownGotFocus;
+                }
             }
         }
 
@@ -291,6 +298,17 @@ namespace MahApps.Metro.Controls
             }
         }
 
+        static void NumericUpDownGotFocus(object sender, RoutedEventArgs e)
+        {
+            var numericUpDown = sender as NumericUpDown;
+            if (numericUpDown == null)
+                return;
+            if (GetSelectAllOnFocus(numericUpDown))
+            {
+                numericUpDown.Dispatcher.BeginInvoke((Action)(numericUpDown.SelectAll));
+            }
+        }
+
         public static bool GetClearTextButton(DependencyObject d)
         {
             return (bool)d.GetValue(ClearTextButtonProperty);
@@ -299,22 +317,6 @@ namespace MahApps.Metro.Controls
         public static void SetClearTextButton(DependencyObject obj, bool value)
         {
             obj.SetValue(ClearTextButtonProperty, value);
-        }
-
-        /// <summary>
-        /// Gets the buttons placement variant.
-        /// </summary>
-        public static ButtonsAlignment GetButtonsAlignment(DependencyObject d)
-        {
-            return (ButtonsAlignment)d.GetValue(ButtonsAlignmentProperty);
-        }
-
-        /// <summary>
-        /// Sets the buttons placement variant.
-        /// </summary>
-        public static void SetButtonsAlignment(DependencyObject obj, ButtonsAlignment value)
-        {
-            obj.SetValue(ButtonsAlignmentProperty, value);
         }
 
         /// <summary>
@@ -334,8 +336,6 @@ namespace MahApps.Metro.Controls
         {
             obj.SetValue(IsClearTextButtonBehaviorEnabledProperty, value);
         }
-
-        
 
         public static ICommand GetButtonCommand(DependencyObject d)
         {

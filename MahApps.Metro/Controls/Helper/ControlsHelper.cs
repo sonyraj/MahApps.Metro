@@ -10,57 +10,18 @@ namespace MahApps.Metro.Controls
     /// </summary>
     public static class ControlsHelper
     {
-        public static readonly DependencyProperty DisabledVisualElementVisibilityProperty = DependencyProperty.RegisterAttached("DisabledVisualElementVisibility", typeof(Visibility), typeof(ControlsHelper), new FrameworkPropertyMetadata(Visibility.Visible, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly DependencyProperty HeaderProperty =
+            DependencyProperty.RegisterAttached("Header", typeof(object), typeof(ControlsHelper), new FrameworkPropertyMetadata(null));
 
-        /// <summary>
-        /// Gets the value to handle the visibility of the DisabledVisualElement in the template.
-        /// </summary>
         [AttachedPropertyBrowsableForType(typeof(TextBox))]
-        [AttachedPropertyBrowsableForType(typeof(PasswordBox))]
-        [AttachedPropertyBrowsableForType(typeof(RichTextBox))]
-        [AttachedPropertyBrowsableForType(typeof(NumericUpDown))]
-        public static Visibility GetDisabledVisualElementVisibility(UIElement element)
+        public static object GetHeader(UIElement element)
         {
-            return (Visibility)element.GetValue(DisabledVisualElementVisibilityProperty);
+            return (object)element.GetValue(HeaderProperty);
         }
 
-        /// <summary>
-        /// Sets the value to handle the visibility of the DisabledVisualElement in the template.
-        /// </summary>
-        public static void SetDisabledVisualElementVisibility(UIElement element, Visibility value)
+        public static void SetHeader(UIElement element, object value)
         {
-            element.SetValue(DisabledVisualElementVisibilityProperty, value);
-        }
-
-        /// <summary>
-        /// The DependencyProperty for the CharacterCasing property.
-        /// Controls whether or not content is converted to upper or lower case
-        /// </summary>
-        public static readonly DependencyProperty ContentCharacterCasingProperty =
-            DependencyProperty.RegisterAttached(
-                "ContentCharacterCasing",
-                typeof (CharacterCasing),
-                typeof (ControlsHelper),
-                new FrameworkPropertyMetadata(CharacterCasing.Normal, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure),
-                new ValidateValueCallback(value => CharacterCasing.Normal <= (CharacterCasing) value && (CharacterCasing) value <= CharacterCasing.Upper));
-
-        /// <summary>
-        /// Gets the character casing of the control
-        /// </summary>
-        [AttachedPropertyBrowsableForType(typeof(ContentControl))]
-        [AttachedPropertyBrowsableForType(typeof(DropDownButton))]
-        [AttachedPropertyBrowsableForType(typeof(WindowCommands))]
-        public static CharacterCasing GetContentCharacterCasing(UIElement element)
-        {
-            return (CharacterCasing)element.GetValue(ContentCharacterCasingProperty);
-        }
-
-        /// <summary>
-        /// Sets the character casing of the control
-        /// </summary>
-        public static void SetContentCharacterCasing(UIElement element, CharacterCasing value)
-        {
-            element.SetValue(ContentCharacterCasingProperty, value);
+            element.SetValue(HeaderProperty, value);
         }
 
         public static readonly DependencyProperty HeaderFontSizeProperty =
@@ -204,7 +165,6 @@ namespace MahApps.Metro.Controls
         [AttachedPropertyBrowsableForType(typeof(RadioButton))]
         [AttachedPropertyBrowsableForType(typeof(DatePicker))]
         [AttachedPropertyBrowsableForType(typeof(ComboBox))]
-        [AttachedPropertyBrowsableForType(typeof(Tile))]
         public static Brush GetMouseOverBorderBrush(DependencyObject obj)
         {
             return (Brush)obj.GetValue(MouseOverBorderBrushProperty);

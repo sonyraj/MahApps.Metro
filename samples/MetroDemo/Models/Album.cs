@@ -1,112 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using MetroDemo.Annotations;
 
 namespace MetroDemo.Models
 {
-    public class Album : INotifyPropertyChanged
+    public class Album
     {
-        private int _albumId;
-        private int _genreId;
-        private int _artistId;
-        private string _title;
-        private decimal _price;
-        private Genre _genre;
-        private Artist _artist;
-
-        public int AlbumId
-        {
-            get { return _albumId; }
-            set
-            {
-                if (value == _albumId) return;
-                _albumId = value;
-                OnPropertyChanged();
-            }
-        }
+        public int AlbumId { get; set; }
 
         [DisplayName("Genre")]
-        public int GenreId
-        {
-            get { return _genreId; }
-            set
-            {
-                if (value == _genreId) return;
-                _genreId = value;
-                OnPropertyChanged();
-            }
-        }
+        public int GenreId { get; set; }
 
         [DisplayName("Artist")]
-        public int ArtistId
-        {
-            get { return _artistId; }
-            set
-            {
-                if (value == _artistId) return;
-                _artistId = value;
-                OnPropertyChanged();
-            }
-        }
+        public int ArtistId { get; set; }
 
-        public string Title
-        {
-            get { return _title; }
-            set
-            {
-                if (value == _title) return;
-                _title = value;
-                OnPropertyChanged();
-            }
-        }
+        public string Title { get; set; }
 
-        public decimal Price
-        {
-            get { return _price; }
-            set
-            {
-                if (value == _price) return;
-                _price = value;
-                OnPropertyChanged();
-            }
-        }
+        public decimal Price { get; set; }
 
         [DisplayName("Album Art URL")]
         public string AlbumArtUrl { get; set; }
 
-        public virtual Genre Genre
-        {
-            get { return _genre; }
-            set
-            {
-                if (Equals(value, _genre)) return;
-                _genre = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public virtual Artist Artist
-        {
-            get { return _artist; }
-            set
-            {
-                if (Equals(value, _artist)) return;
-                _artist = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            var handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public virtual Genre Genre { get; set; }
+        public virtual Artist Artist { get; set; }
     }
 
     public static class SampleData
@@ -538,16 +454,6 @@ namespace MetroDemo.Models
                     new Album {Title = "Bach: The Cello Suites", Genre = Genres.First(g => g.Name == "Classical"), Price = 8.99M, Artist = Artists.First(a => a.Name == "Yo-Yo Ma"), AlbumArtUrl = "/Content/Images/placeholder.gif"},
                     new Album {Title = "Ao Vivo [IMPORT]", Genre = Genres.First(g => g.Name == "Latin"), Price = 8.99M, Artist = Artists.First(a => a.Name == "Zeca Pagodinho"), AlbumArtUrl = "/Content/Images/placeholder.gif"},
                 };
-
-
-            var r = new Random(Environment.TickCount);
-            Albums.ForEach(x => x.Price = Convert.ToDecimal(r.NextDouble() * 20d));
-
-            var albumsGroupedByArtist = Albums.GroupBy(a => a.Artist);
-            foreach (var grouping in albumsGroupedByArtist)
-            {
-                grouping.Key.Albums = grouping.ToList();
-            }
         }
     }
 }
